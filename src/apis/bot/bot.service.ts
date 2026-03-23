@@ -21,8 +21,16 @@ export class BotService {
         })
 
         this.bot.callbackQuery('me', async ctx => {
+            const ismlar = {
+                shodiyor: "shodik",
+                otkirbek: "o'tkuriy"
+            }
+            let kb = new InlineKeyboard()
+            for(let ism in ismlar) {
+                kb.text(ismlar[ism], ism).row()
 
-            ctx.reply("O'tkirbek ham kuchayib ketdi")
+            }
+            ctx.reply("O'tkirbek ham kuchayib ketdi", {reply_markup: kb})
         })
 
         this.bot.on('message:text', async ctx => {
