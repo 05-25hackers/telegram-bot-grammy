@@ -16,21 +16,33 @@ export class BotService {
 
     async onModuleInit() {
         this.bot.command('start', (ctx) => {
-            const keyboard = new InlineKeyboard().text("men haqimda", 'me')
+            const keyboard = new InlineKeyboard().text("guruh haqida", 'me')
             ctx.reply("Salom bizni botimizga xush kelibsiz", {reply_markup: keyboard})
         })
 
         this.bot.callbackQuery('me', async ctx => {
             const ismlar = {
-                shodiyor: "shodik",
-                otkirbek: "o'tkuriy"
             }
-            let kb = new InlineKeyboard()
+            let kb = new InlineKeyboard().text("O'tkirbek", 'student1').text("Shodiyor", 'student2').text("Javohir", 'student3')
             for(let ism in ismlar) {
                 kb.text(ismlar[ism], ism).row()
 
             }
             ctx.reply("O'tkirbek ham kuchayib ketdi", {reply_markup: kb})
+        })
+
+        this.bot.callbackQuery('student1', async ctx => {
+            ctx.reply("Usmonaliyev O'tkirbek")
+        })
+
+
+        this.bot.callbackQuery('student2', async ctx => {
+            ctx.reply("Erkinov Shodiyor")
+        })
+
+
+        this.bot.callbackQuery('student3', async ctx => {
+            ctx.reply("Nuraliyev Javohir")
         })
 
         this.bot.on('message:text', async ctx => {
