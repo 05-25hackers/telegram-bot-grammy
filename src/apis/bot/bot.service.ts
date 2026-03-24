@@ -51,8 +51,24 @@ telefon: ${data.phone},`
                 ctx.reply(message)
             }
 
+        this.bot.command('users', async (ctx) => {
+            const users = await this.userService.findAll();
+            if (users.length === 0) {
+                ctx.reply("Hech qanday foydalanuvchi topilmadi.");
+            } else {
+                const userList = users.map(user => `ID: ${user.id}, Ism: ${user.name}, Familiya: ${user.surname || 'Noma\'lum'}, Telefon: ${user.phone}`).join('\n');
+                ctx.reply(`Barcha foydalanuvchilar:\n${userList}`);
+            }
         })
-        this.bot.start()
+        this.bot.command('mi', async (ctx) => {
+            const user = await this.userService.findByChatId(ctx.chatId);
+            if (!user) {
+                ctx.reply("Siz ro'yhatdan o'tmagansiz.");
+            } else {
+                const message = `Sizning ma'lumotlaringiz:\nID: ${user.id}\nIsm: ${user.name}\nFamiliya: ${user.surname || 'Noma\'lum'}\nTelefon: ${user.phone}`;
+                ctx.reply(message);
+            }
+        })
     }
 
 }
