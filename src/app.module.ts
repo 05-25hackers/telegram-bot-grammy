@@ -3,6 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { BotModule } from './apis/bot/bot.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './apis/users/users.module';
+import { UsersService } from './apis/users/users.service';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -10,9 +13,11 @@ import { AppService } from './app.service';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    BotModule
+    BotModule,
+    UsersModule,
+    PrismaModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, UsersService],
 })
 export class AppModule { }
