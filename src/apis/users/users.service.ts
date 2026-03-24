@@ -11,7 +11,7 @@ export class UsersService {
         return await this.prisma.user.findMany();
     }
     async findByChatId(chatId: number) {
-        return await this.prisma.user.findUnique({ where: { chatId } });
+        return await this.prisma.user.findFirst({ where: { chatId } });
     }
     async create(data: CreateUserDto) { 
         return await this.prisma.user.create({

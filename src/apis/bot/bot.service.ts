@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { config } from "dotenv"
 import { Bot, InlineKeyboard } from 'grammy'
-import { UsersService } from '../users/users.service'
 import { CreateUserDto } from '../users/dto'
+import { UsersService } from '../users/users.service'
 config()
 
 @Injectable()
@@ -10,7 +10,7 @@ export class BotService {
     private bot: Bot
     private token: any
     private steps = new Map()
-    private userData :CreateUserDto = {name: '', surname: '', phone: '', chatId: 0}
+    private userData: CreateUserDto = { name: '', surname: '', phone: '', chatId: 0 }
     constructor(
         private readonly userService: UsersService
     ) {
@@ -23,6 +23,28 @@ export class BotService {
         this.bot.command('start', (ctx) => {
             const keyboard = new InlineKeyboard().text("Ro'yhatdan o'tish", 'register')
             ctx.reply("Salom bizni botimizga xush kelibsiz", { reply_markup: keyboard })
+        })
+
+        this.bot.command('users', async (ctx) => {
+            const users = await this.userService.findAll();
+            if (users.length === 0) {
+                ctx.reply("Hech qanday foydalanuvchi topilmadi.");
+            } else {
+                const userList = users.map(user => `
+Ism: ${user.name}
+Familiya: ${user.surname || 'Noma\'lum'}
+Telefon: ${user.phone}`).join('\n');
+                ctx.reply(`Barcha foydalanuvchilar:\n${userList}`);
+            }
+        })
+        this.bot.command('mi', async (ctx) => {
+            const user = await this.userService.findByChatId(ctx.chatId);
+            if (!user) {
+                ctx.reply("Siz ro'yhatdan o'tmagansiz.");
+            } else {
+                const message = `Sizning ma'lumotlaringiz:\nID: ${user.id}\nIsm: ${user.name}\nFamiliya: ${user.surname || 'Noma\'lum'}\nTelefon: ${user.phone}`;
+                ctx.reply(message);
+            }
         })
         this.bot.callbackQuery('register', ctx => {
             this.steps.set('step', 'name')
@@ -50,25 +72,9 @@ familiya: ${data.surname},
 telefon: ${data.phone},`
                 ctx.reply(message)
             }
+        })
 
-        this.bot.command('users', async (ctx) => {
-            const users = await this.userService.findAll();
-            if (users.length === 0) {
-                ctx.reply("Hech qanday foydalanuvchi topilmadi.");
-            } else {
-                const userList = users.map(user => `ID: ${user.id}, Ism: ${user.name}, Familiya: ${user.surname || 'Noma\'lum'}, Telefon: ${user.phone}`).join('\n');
-                ctx.reply(`Barcha foydalanuvchilar:\n${userList}`);
-            }
-        })
-        this.bot.command('mi', async (ctx) => {
-            const user = await this.userService.findByChatId(ctx.chatId);
-            if (!user) {
-                ctx.reply("Siz ro'yhatdan o'tmagansiz.");
-            } else {
-                const message = `Sizning ma'lumotlaringiz:\nID: ${user.id}\nIsm: ${user.name}\nFamiliya: ${user.surname || 'Noma\'lum'}\nTelefon: ${user.phone}`;
-                ctx.reply(message);
-            }
-        })
+        this.bot.start()
     }
 
 }
