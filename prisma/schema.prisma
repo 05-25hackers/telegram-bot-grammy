@@ -1,10 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  engineType = "client"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -12,6 +13,17 @@ model User {
   name          String
   surname       String?
   phone         String
-  chatId        Int
+  chatId        BigInt @unique
   @@map("users")
+}
+
+model Task {
+  id              String   @id @default(cuid())
+  name           String
+  description     String?
+  importanceLevel String   // 'high', 'medium', 'low'
+  chatId          BigInt
+  createdAt       DateTime @default(now())
+
+  @@map("tasks")
 }

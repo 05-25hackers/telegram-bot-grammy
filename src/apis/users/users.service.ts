@@ -7,16 +7,17 @@ export class UsersService {
     constructor(private readonly prisma: PrismaService) { }
 
 
-    async findAll() { 
+    async findAll() {
         return await this.prisma.user.findMany();
     }
     async findByChatId(chatId: number) {
-        return await this.prisma.user.findFirst({ where: { chatId } });
+        return await this.prisma.user.findFirst({ where: { chatId: BigInt(chatId) } });
     }
-    async create(data: CreateUserDto) { 
+    async create(data: CreateUserDto) {
         return await this.prisma.user.create({
             data: {
-                ...data
+                ...data,
+                chatId: BigInt(data.chatId)
             }
         })
     }
