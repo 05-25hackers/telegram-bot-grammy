@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit, NotFoundException } from '@nestjs/common';
-import { Bot, InlineKeyboard, Context } from 'grammy';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Bot, InlineKeyboard } from 'grammy';
 import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
 import { TasksService } from '../tasks/tasks.service';
@@ -29,7 +29,6 @@ export class BotService implements OnModuleInit {
             console.error("BOT ERROR:", err);
         });
 
-        // START COMMAND
         this.bot.command('start', async (ctx) => {
             const chatId = ctx.chatId;
             const existingUser = await this.userService.findByChatId(chatId);
@@ -40,7 +39,6 @@ export class BotService implements OnModuleInit {
             await ctx.reply("Assalomu alaykum! Botdan foydalanish uchun ro'yxatdan o'ting.", { reply_markup: keyboard });
         });
 
-        // REGISTER CALLBACK
         this.bot.callbackQuery('register', async (ctx) => {
             const chatId = ctx.chatId;
             if (!chatId) return;
@@ -54,7 +52,6 @@ export class BotService implements OnModuleInit {
             await ctx.answerCallbackQuery();
         });
 
-        // ADD TASK COMMAND
         this.bot.command('add', async (ctx) => {
             const chatId = ctx.chatId;
             const user = await this.userService.findByChatId(chatId);
@@ -68,7 +65,6 @@ export class BotService implements OnModuleInit {
             await ctx.reply("Vazifa nomini kiriting:");
         });
 
-        // MY INFO COMMAND
         this.bot.command('mi', async (ctx) => {
             const user = await this.userService.findByChatId(ctx.chatId);
             if (!user) return ctx.reply("Ro'yxatdan o'tilmagan.");
@@ -76,7 +72,6 @@ export class BotService implements OnModuleInit {
             await ctx.reply(`Sizning ma'lumotlaringiz:\nID: ${user.id}\nIsm: ${user.name}\nFamiliya: ${user.surname}\nTelefon: ${user.phone}`);
         });
 
-        // MY TASKS COMMAND
         this.bot.command('mytasks', async (ctx) => {
             const tasks = await this.tasksService.findByChatId(ctx.chatId);
             if (tasks.length === 0) return ctx.reply("Vazifalar topilmadi.");
@@ -85,7 +80,6 @@ export class BotService implements OnModuleInit {
             await ctx.reply(list);
         });
 
-        // ALL USERS (ADMIN)
         this.bot.command('users', async (ctx) => {
             const users = await this.userService.findAll();
             if (users.length === 0) return ctx.reply("Foydalanuvchilar yo'q.");
@@ -94,12 +88,10 @@ export class BotService implements OnModuleInit {
             await ctx.reply(list);
         });
 
-        // MESSAGE HANDLER
         this.bot.on('message:text', async (ctx) => {
             const chatId = ctx.chatId;
             const text = ctx.message.text;
 
-            // Ro'yxatdan o'tish mantiqi
             if (this.userSteps.has(chatId)) {
                 const step = this.userSteps.get(chatId);
                 const data = this.userData.get(chatId);
@@ -125,7 +117,6 @@ export class BotService implements OnModuleInit {
                 }
             }
 
-            // Task qo'shish mantiqi
             if (this.taskSteps.has(chatId)) {
                 const step = this.taskSteps.get(chatId);
                 const data = this.taskData.get(chatId);
@@ -146,7 +137,6 @@ export class BotService implements OnModuleInit {
             }
         });
 
-        // IMPORTANCE CALLBACK
         this.bot.callbackQuery(['low', 'medium', 'high'], async (ctx) => {
             const chatId = ctx.chatId;
             if (!chatId) return;
