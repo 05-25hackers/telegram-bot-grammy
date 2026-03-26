@@ -12,7 +12,7 @@ export class TasksService {
                 name: data.name,
                 description: data.description,
                 importanceLevel: data.importanceLevel,
-                chatId: data.chatId as any,
+                chatId: BigInt(data.chatId),
             },
         });
     }
@@ -39,8 +39,8 @@ export class TasksService {
             where: { id },
             data: {
                 ...rest,
-                name: (data as any).name,
-                chatId: chatId ? (chatId as any) : undefined,
+                name: data.name,
+                chatId: data.chatId ? BigInt(data.chatId) : undefined,
             },
         });
     }
